@@ -1,0 +1,102 @@
+<div id="bc" class="flex-container" >
+  <div class="form-text">
+    <div>
+      <label>Seleziona lo schema: </label>
+      <select class="dropdown" [(ngModel)]="schema" (change)="onSubmit(1)">
+        <option *ngFor="let item of schemas" [value]="item">{{ item }}</option>
+      </select>
+    </div>
+    <div>
+      <label>Seleziona la tabella da migrare: </label>
+      <select class="dropdown" [(ngModel)]="table" (change)="onSubmit(2)">
+        <option *ngFor="let item of tables" [value]="item.tableName">{{ item.tableName }}</option>
+      </select>
+    </div>
+    <div>
+      <label>Vuoi migrare una singola tabella o tutto il database?</label>
+      <button [style.backgroundColor]="btn_tb" (click)="onButtonMigration(2)">Tabella</button>
+      <button [style.backgroundColor]="btn_dat" (click)="onButtonMigration(1)">Database</button>
+    </div>
+    <div *ngIf="database">
+      <div>
+        <label>Ecco le tabelle che saranno impattate: </label>
+        <table>
+          <thead>
+            <tr>
+              <th>livello</th>
+              <th>tabelle</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of migrationMap">
+              <td> {{ item.height }}</td>
+              <td *ngFor="let i of item.children">
+                 {{i.tableName}}
+              </td>
+            </tr>
+            <td *ngIf="!relationship" style="color: red;">Nessuna relazione trovata!</td>
+          </tbody>
+        </table>
+      </div>
+      <label>Avvia la migrazione del database</label>
+      <form [formGroup]="form" name="form">
+        <input style="width: 100px;" type="text" placeholder="limit:" formControlName="limit">
+        <button style="background-color: #45a049; width: fit-content; height: 35px;" (click)="start_migration_db()">Start!</button>
+      </form>
+      <div style="justify-content: center; align-items: center;">
+        <app-toast (close)="close($event)" *ngIf="succes && succes!=undefined" [message]="successMessage" type="success"></app-toast>
+        <app-toast (close)="close($event)" *ngIf="!succes && succes!=undefined" [message]="errorMessage" type="error"></app-toast>
+      </div>
+    </div>
+    <div *ngIf="notDatabase">
+    <div>
+      <label>Ecco le tabelle che saranno impattate: </label>
+      <table>
+        <thead *ngIf="embed">
+          <tr>
+            <th>tabella figlia</th>
+            <th>vincolo</th>
+          </tr>
+        </thead>
+        <thead *ngIf="reference">
+          <tr>
+            <th>tabella genitore</th>
+            <th>vincolo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of relationships">
+            <td> {{ item.table }}</td>
+            <td> {{ item.relationType }}</td>
+          </tr>
+          <td *ngIf="!relationship" style="color: red;">Nessuna relazione trovata!</td>
+        </tbody>
+      </table>
+    </div>
+      <div style="display: flex; flex-direction: row;">
+    <div>
+      <label>Quale strategia vuoi applicare?</label>
+      <button [style.backgroundColor]="btn_e" (click)="onButtonSubmit(1)">Embed</button>
+      <button [style.backgroundColor]="btn_r" (click)="onButtonSubmit(2)">Reference</button>
+    </div>
+      <div style="margin-left: 5px;" *ngIf="countFlag">
+        <label> Saranno impattate {{ count }} righe! </label>
+      </div>
+      </div>
+      <div style="margin-top: 5px; width: 650px; display: flex; flex-direction: row; justify-items: center; align-items: center;">
+      <form [formGroup]="form" name="form">
+        <label for="limit">Limit/Offset</label>
+        <div style="display: flex; flex-direction: row;">
+          <input type="text" placeholder="limit:" formControlName="limit">
+          <input type="text" placeholder="offset:" formControlName="offset">
+          <button *ngIf="form.dirty" style="background-color: #45a049; width: fit-content; height: 35px;" (click)="start_migration(migrationType)">Start!</button>
+        </div>
+      </form>
+      </div>
+      <div style="justify-content: center; align-items: center;">
+      <app-toast (close)="close($event)" *ngIf="succes && succes!=undefined" [message]="successMessage" type="success"></app-toast>
+      <app-toast (close)="close($event)" *ngIf="!succes && succes!=undefined" [message]="errorMessage" type="error"></app-toast>
+      </div>
+    </div>
+  </div>
+</div>
